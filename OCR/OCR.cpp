@@ -12,15 +12,15 @@ using namespace std;
 
 
 vector<Mat> GetTrainLbl(string filename);
-
+vector<Mat> GetTrainImg(string filename);
 vector<Mat> initBiases();
 vector<Mat> initWeights();
 
 int main(int argc, char** argv)
 {
-    /*vector<Mat> weights = initWeights();
+    vector<Mat> weights = initWeights();
     vector<Mat> biases = initBiases();
-    vector<Mat> imgMat = GetTrainImg("d:/deeplearning/train-images.idx3-ubyte");*/
+    vector<Mat> imgMat = GetTrainImg("d:/deeplearning/train-images.idx3-ubyte");
     vector<Mat> imgLbl = GetTrainLbl("d:/deeplearning/train-labels.idx1-ubyte");
 
     
