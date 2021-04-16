@@ -80,15 +80,15 @@ pair<vector<Mat>,vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, 
     
     for (size_t i = 2; i < 3; i++)
     {
-        Mat z = zs.back();
+        Mat z = zs[zs.size() - i];
         Mat sp = sigmoidPrime(z);
         auto a = activations.size() - i - 1 + 1;
-        Mat tmp = weights[activations.size() - i - 1 + 1].t() * delta;
+        Mat tmp = weights[weights.size() - i+ 1].t() * delta;
         delta = tmp.mul(sp);
         nabla_b.pop_back();
         nabla_b.push_back(delta);
         nabla_w.pop_back();
-        nabla_w.push_back(delta * activations[activations.size() - i-1 - 1].t());
+        nabla_w.push_back(delta * activations[activations.size() - i- 1].t());
     }
     return { nabla_b,nabla_w };
 }
