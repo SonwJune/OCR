@@ -22,6 +22,9 @@ Mat sigmoid(Mat z);
 pair<vector<Mat>, vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, vector<Mat> biases);
 Mat costDerivative(Mat outputActivations, Mat imgLbl);
 Mat sigmoidPrime(Mat z);
+double evaluate(vector<Mat> testImgMat, vector<Mat> testImgLbl, vector<Mat> weights, vector<Mat> biases);
+int argmax(Mat m);
+Mat feedforward(vector<Mat> biases, vector<Mat> weights, Mat img);
 
 
 int main(int argc, char** argv)
@@ -43,18 +46,79 @@ int main(int argc, char** argv)
         vector<pair<Mat, Mat>> miniBatch(iter + 10 * i, iter + 10 * (i + 1));
         vector<Mat> nabla_b = initNabla_b();
         vector<Mat> nabla_w = initNabla_w();
-        auto c = backprop(miniBatch[0], weights, biases);
-
+        auto deltaNabla = backprop(miniBatch[0], weights, biases);
+        for (size_t j = 0; j < nabla_b.size(); j++)
+        {
+            nabla_b[j] += deltaNabla.first[j];
+        }
+        for (size_t j = 0; j < nabla_w.size(); j++)
+        {
+            nabla_w[j] += deltaNabla.second[j];
+        }
+        double eta = 3.0;
+        for (size_t j = 0; j < weights.size(); j++)
+        {
+            Mat test20 = weights[j] - (eta / 10) * nabla_w[j];
+            weights[j] = weights[j] - (eta / 10) * nabla_w[j];
+        }
+        for (size_t j = 0; j < biases.size(); j++)
+        {
+            biases[j] = biases[j] - (eta / 10) * nabla_b[j];
+        }
+        cout << "第" << i << "组" << "    " << "共" << miniBatches.size()/10 << "组" << endl;
     }
-    
-    
-
+    //加载测试集数据
+    vector<Mat> testImgMat = GetTrainImg("d:/deeplearning/t10k-images.idx3-ubyte");
+    vector<Mat> testImgLbl = GetTrainLbl("d:/deeplearning/t10k-labels.idx1-ubyte");
+    double rate = evaluate(testImgMat, testImgLbl, weights, biases);
+    cout << "rate:    " << rate*100 << "%"<<endl;
     //GetTrainLbl("d:/deeplearning/train-labels.idx1-ubyte");
 }
+
+double evaluate(vector<Mat> testImgMat, vector<Mat> testImgLbl, vector<Mat> weights, vector<Mat> biases)
+{
+    vector<pair<int, int>> testResults;
+    for (size_t i = 0; i < testImgMat.size(); i++)
+    {
+        Mat res = feedforward(biases, weights, testImgMat[i]);
+        int predict = argmax(res);
+        int lable = argmax(testImgLbl[i]);
+        testResults.push_back({predict,lable});
+    }
+    int sum = 0;//预测成功的个数
+    for (auto& i : testResults)
+    {
+        if (i.first==i.second)
+        {
+            sum += 1;
+        }
+    }
+    double rate = (double)sum / testResults.size();
+    return rate;
+}
+
+int argmax(Mat m)
+{
+    //返回Mat中最大元素值的下标
+    Point maxIndex;
+    minMaxLoc(m, 0, 0, 0, &maxIndex);
+    return maxIndex.y;
+}
+
+Mat feedforward(vector<Mat> biases, vector<Mat> weights,Mat img)
+{
+    for (size_t i = 0; i < biases.size(); i++)
+    {
+        img = sigmoid(weights[i] * img + biases[i]);
+    }
+    return img;
+}
+
 
 pair<vector<Mat>,vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, vector<Mat> biases)
 {
     //pair<Mat, Mat> :<img, label>
+    Mat test = img.first.clone().reshape(1, { 28,28 });//test
     Mat x = img.first;
     Mat y = img.second;
     vector<Mat> nabla_b = initNabla_b();
@@ -71,26 +135,28 @@ pair<vector<Mat>,vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, 
         activations.push_back(activation);
     }
     //反向传播
-
+    Mat test10 = costDerivative(activations.back(), y);
+    Mat test11 = sigmoidPrime(zs.back());
+    Mat test13 = test10.mul(test11);
     Mat delta = costDerivative(activations.back(), y).mul(sigmoidPrime(zs.back()));
-    nabla_b.pop_back();
-    nabla_b.push_back(delta);
-    nabla_w.pop_back();
-    nabla_w.push_back(delta * activations[activations.size() - 2].t());
+    //nabla_b.pop_back();
+    //nabla_b.push_back(delta);
+    nabla_b[nabla_b.size() - 1] = delta;
+    //nabla_w.pop_back();
+    //nabla_w.push_back(delta * activations[activations.size() - 2].t());
+    nabla_w[nabla_w.size() - 1] = delta * activations[activations.size() - 2].t();
     
     for (size_t i = 2; i < 3; i++)
     {
         Mat z = zs[zs.size() - i];
         Mat sp = sigmoidPrime(z);
-        auto a = activations.size() - i - 1 + 1;
         Mat tmp = weights[weights.size() - i+ 1].t() * delta;
         delta = tmp.mul(sp);
-        nabla_b.pop_back();
-        nabla_b.push_back(delta);
-        nabla_w.pop_back();
-        nabla_w.push_back(delta * activations[activations.size() - i- 1].t());
+        nabla_b[nabla_b.size() - i] = delta;
+        nabla_w[nabla_w.size() - i] = delta * activations[activations.size() - i - 1].t();
     }
     return { nabla_b,nabla_w };
+    //反向传播算法返回的两个值错误
 }
 
 Mat costDerivative(Mat outputActivations, Mat imgLbl)
@@ -138,8 +204,8 @@ vector<Mat> initBiases()
     vector<Mat> biases;
     Mat biases0 = Mat(30, 1, CV_32FC1);
     Mat biases1 = Mat(10, 1, CV_32FC1);
-    randu(biases0, Scalar::all(0), Scalar::all(1));
-    randu(biases1, Scalar::all(0), Scalar::all(1));
+    randu(biases0, Scalar::all(-1), Scalar::all(1));
+    randu(biases1, Scalar::all(-1), Scalar::all(1));
     biases.push_back(biases0.clone());
     biases.push_back(biases1.clone());
     return biases;
@@ -151,8 +217,8 @@ vector<Mat> initWeights()
     vector<Mat> weights;
     Mat weights0 = Mat(30, 784, CV_32FC1);
     Mat weights1 = Mat(10, 30, CV_32FC1);
-    randu(weights0, Scalar::all(0), Scalar::all(1));
-    randu(weights1, Scalar::all(0), Scalar::all(1));
+    randu(weights0, Scalar::all(-1), Scalar::all(1));
+    randu(weights1, Scalar::all(-1), Scalar::all(1));
     weights.push_back(weights0.clone());
     weights.push_back(weights1.clone());
     return weights;
@@ -193,7 +259,7 @@ vector<Mat> GetTrainLbl(string filename)
     }
     char buffer[1];
     vector<Mat> imgLbl;
-    //读取文件头部16字节
+    //读取文件头部8字节
     inTrainImage.seekg(8, ios::cur);
     while (inTrainImage.read(buffer, 1))
     {
