@@ -1,4 +1,4 @@
-ï»¿#include <opencv2/core.hpp>
+#include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include <iostream>
@@ -28,7 +28,7 @@ Mat feedforward(vector<Mat> biases, vector<Mat> weights, Mat img);
 void writeMat(string filename, Mat img);
 void readMat(string filename, Mat& img);
 
-//æ ¹æ®è®­ç»ƒé›†ç”Ÿæˆweights, biases, rate
+//¸ù¾İÑµÁ·¼¯Éú³Éweights, biases, rate
 int ocr()
 {
 
@@ -38,12 +38,12 @@ int ocr()
     vector<Mat> imgLbl = GetTrainLbl("d:/deeplearning/train-labels.idx1-ubyte");
 
     vector<pair<Mat, Mat>> miniBatches;
-    for (size_t i = 0; i !=imgMat.size(); i++)
+    for (size_t i = 0; i != imgMat.size(); i++)
     {
-        miniBatches.push_back({imgMat[i],imgLbl[i]});
+        miniBatches.push_back({ imgMat[i],imgLbl[i] });
     }
     shuffle(miniBatches.begin(), miniBatches.end(), std::default_random_engine(33466));
-    for (size_t i = 0; i < miniBatches.size()/10; i++)
+    for (size_t i = 0; i < miniBatches.size() / 10; i++)
     {
         auto iter = miniBatches.begin();
         vector<pair<Mat, Mat>> miniBatch(iter + 10 * i, iter + 10 * (i + 1));
@@ -68,18 +68,18 @@ int ocr()
         {
             biases[j] = biases[j] - (eta / 10) * nabla_b[j];
         }
-        cout << "ç¬¬" << i << "ç»„" << "    " << "å…±" << miniBatches.size()/10 << "ç»„" << endl;
+        cout << "µÚ" << i << "×é" << "    " << "¹²" << miniBatches.size() / 10 << "×é" << endl;
     }
-    //åŠ è½½æµ‹è¯•é›†æ•°æ®
+    //¼ÓÔØ²âÊÔ¼¯Êı¾İ
     vector<Mat> testImgMat = GetTrainImg("d:/deeplearning/t10k-images.idx3-ubyte");
     vector<Mat> testImgLbl = GetTrainLbl("d:/deeplearning/t10k-labels.idx1-ubyte");
     double rate = evaluate(testImgMat, testImgLbl, weights, biases);
-    cout << "rate:    " << rate*100 << "%"<<endl;
+    cout << "rate:    " << rate * 100 << "%" << endl;
     //GetTrainLbl("d:/deeplearning/train-labels.idx1-ubyte");
     // 
     // 
     // 
-    //å­˜å‚¨w  b
+    //´æ´¢w  b
     writeMat("b0", biases[0]);
     writeMat("b1", biases[1]);
     writeMat("w0", weights[0]);
@@ -96,12 +96,12 @@ double evaluate(vector<Mat> testImgMat, vector<Mat> testImgLbl, vector<Mat> weig
         Mat res = feedforward(biases, weights, testImgMat[i]);
         int predict = argmax(res);
         int lable = argmax(testImgLbl[i]);
-        testResults.push_back({predict,lable});
+        testResults.push_back({ predict,lable });
     }
-    int sum = 0;//é¢„æµ‹æˆåŠŸçš„ä¸ªæ•°
+    int sum = 0;//Ô¤²â³É¹¦µÄ¸öÊı
     for (auto& i : testResults)
     {
-        if (i.first==i.second)
+        if (i.first == i.second)
         {
             sum += 1;
         }
@@ -112,13 +112,13 @@ double evaluate(vector<Mat> testImgMat, vector<Mat> testImgLbl, vector<Mat> weig
 
 int argmax(Mat m)
 {
-    //è¿”å›Matä¸­æœ€å¤§å…ƒç´ å€¼çš„ä¸‹æ ‡
+    //·µ»ØMatÖĞ×î´óÔªËØÖµµÄÏÂ±ê
     Point maxIndex;
     minMaxLoc(m, 0, 0, 0, &maxIndex);
     return maxIndex.y;
 }
 
-Mat feedforward(vector<Mat> biases, vector<Mat> weights,Mat img)
+Mat feedforward(vector<Mat> biases, vector<Mat> weights, Mat img)
 {
     for (size_t i = 0; i < biases.size(); i++)
     {
@@ -128,7 +128,7 @@ Mat feedforward(vector<Mat> biases, vector<Mat> weights,Mat img)
 }
 
 
-pair<vector<Mat>,vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, vector<Mat> biases)
+pair<vector<Mat>, vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, vector<Mat> biases)
 {
     //pair<Mat, Mat> :<img, label>
     Mat test = img.first.clone().reshape(1, { 28,28 });//test
@@ -136,9 +136,9 @@ pair<vector<Mat>,vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, 
     Mat y = img.second;
     vector<Mat> nabla_b = initNabla_b();
     vector<Mat> nabla_w = initNabla_w();
-    //å‰å‘ä¼ æ’­
+    //Ç°Ïò´«²¥
     Mat activation = x;
-    vector<Mat> activations({x});   //vector to store all the activations, layer by layer
+    vector<Mat> activations({ x });   //vector to store all the activations, layer by layer
     vector<Mat> zs;
     for (size_t i = 0; i != weights.size(); i++)
     {
@@ -147,7 +147,7 @@ pair<vector<Mat>,vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, 
         activation = sigmoid(z);
         activations.push_back(activation);
     }
-    //åå‘ä¼ æ’­
+    //·´Ïò´«²¥
     Mat test10 = costDerivative(activations.back(), y);
     Mat test11 = sigmoidPrime(zs.back());
     Mat test13 = test10.mul(test11);
@@ -158,18 +158,18 @@ pair<vector<Mat>,vector<Mat>> backprop(pair<Mat, Mat> img, vector<Mat> weights, 
     //nabla_w.pop_back();
     //nabla_w.push_back(delta * activations[activations.size() - 2].t());
     nabla_w[nabla_w.size() - 1] = delta * activations[activations.size() - 2].t();
-    
+
     for (size_t i = 2; i < 3; i++)
     {
         Mat z = zs[zs.size() - i];
         Mat sp = sigmoidPrime(z);
-        Mat tmp = weights[weights.size() - i+ 1].t() * delta;
+        Mat tmp = weights[weights.size() - i + 1].t() * delta;
         delta = tmp.mul(sp);
         nabla_b[nabla_b.size() - i] = delta;
         nabla_w[nabla_w.size() - i] = delta * activations[activations.size() - i - 1].t();
     }
     return { nabla_b,nabla_w };
-    //åå‘ä¼ æ’­ç®—æ³•è¿”å›çš„ä¸¤ä¸ªå€¼é”™è¯¯
+    //·´Ïò´«²¥Ëã·¨·µ»ØµÄÁ½¸öÖµ´íÎó
 }
 
 Mat costDerivative(Mat outputActivations, Mat imgLbl)
@@ -213,7 +213,7 @@ vector<Mat> initNabla_b()
 
 vector<Mat> initBiases()
 {
-    //åˆå§‹åŒ–biases
+    //³õÊ¼»¯biases
     vector<Mat> biases;
     Mat biases0 = Mat(30, 1, CV_32FC1);
     Mat biases1 = Mat(10, 1, CV_32FC1);
@@ -226,7 +226,7 @@ vector<Mat> initBiases()
 
 vector<Mat> initWeights()
 {
-    //åˆå§‹åŒ–biases
+    //³õÊ¼»¯biases
     vector<Mat> weights;
     Mat weights0 = Mat(30, 784, CV_32FC1);
     Mat weights1 = Mat(10, 30, CV_32FC1);
@@ -243,11 +243,11 @@ vector<Mat> GetTrainImg(string filename)
     ifstream inTrainImage(filename, ios::binary);
     if (!inTrainImage)
     {
-        cerr << "è¯»å†™æ–‡ä»¶é”™è¯¯" << endl;
+        cerr << "¶ÁĞ´ÎÄ¼ş´íÎó" << endl;
     }
     char buffer[784];
     vector<Mat> imgMat;
-    //è¯»å–æ–‡ä»¶å¤´éƒ¨16å­—èŠ‚
+    //¶ÁÈ¡ÎÄ¼şÍ·²¿16×Ö½Ú
     inTrainImage.seekg(16, ios::cur);
     while (inTrainImage.read(buffer, 784))
     {
@@ -268,11 +268,11 @@ vector<Mat> GetTrainLbl(string filename)
     ifstream inTrainImage(filename, ios::binary);
     if (!inTrainImage)
     {
-        cerr << "è¯»å†™æ–‡ä»¶é”™è¯¯" << endl;
+        cerr << "¶ÁĞ´ÎÄ¼ş´íÎó" << endl;
     }
     char buffer[1];
     vector<Mat> imgLbl;
-    //è¯»å–æ–‡ä»¶å¤´éƒ¨8å­—èŠ‚
+    //¶ÁÈ¡ÎÄ¼şÍ·²¿8×Ö½Ú
     inTrainImage.seekg(8, ios::cur);
     while (inTrainImage.read(buffer, 1))
     {
@@ -285,13 +285,13 @@ vector<Mat> GetTrainLbl(string filename)
     return imgLbl;
 }
 
-//å°†CV_32FC1çš„Matä»¥äºŒè¿›åˆ¶æ–¹å¼å†™å…¥æ–‡ä»¶
-void writeMat(string filename,Mat img)
+//½«CV_32FC1µÄMatÒÔ¶ş½øÖÆ·½Ê½Ğ´ÈëÎÄ¼ş
+void writeMat(string filename, Mat img)
 {
     ofstream ofs(filename, ios::binary | ios::out);
     if (!ofs)
     {
-        cerr << "è¯»å†™æ–‡ä»¶é”™è¯¯" << endl;
+        cerr << "¶ÁĞ´ÎÄ¼ş´íÎó" << endl;
     }
     MatIterator_<float> it, end;
     for (it = img.begin<float>(), end = img.end<float>(); it != end; ++it)
@@ -302,12 +302,12 @@ void writeMat(string filename,Mat img)
     ofs.close();
 }
 
-//ä»¥äºŒè¿›åˆ¶æ–¹å¼è¯»å…¥æ–‡ä»¶å¹¶è½¬åŒ–ä¸ºCV_32FC1çš„Mat
+//ÒÔ¶ş½øÖÆ·½Ê½¶ÁÈëÎÄ¼ş²¢×ª»¯ÎªCV_32FC1µÄMat
 void readMat(string filename, Mat& img)
 {
     ifstream ifs(filename, ios::binary | ios::in);
     vector<float> fvec;
-    
+
     while (!ifs.eof())
     {
         float b;
@@ -315,7 +315,7 @@ void readMat(string filename, Mat& img)
         fvec.push_back(b);
     }
     ifs.close();
-    //ifs.eofå¤šè¿è¡Œä¸€æ¬¡;
+    //ifs.eof¶àÔËĞĞÒ»´Î;
     fvec.pop_back();
     int i = 0;
     MatIterator_<float> it, end;

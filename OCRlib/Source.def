@@ -1,0 +1,4 @@
+LIBRARY OCRlib
+EXPORTS	PredictImgValue
+EXPORTS	OCRadd
+EXPORTS ResizeImg

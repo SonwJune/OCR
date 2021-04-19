@@ -15,16 +15,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OCR.cpp">
+    <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="OCRlib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="unity.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="predict.cpp">
+    <ClCompile Include="OCRlib.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="unity.cpp">
+      <Filter>头文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OCR.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    <None Include="Source.def">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

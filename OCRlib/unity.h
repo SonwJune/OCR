@@ -1,5 +1,5 @@
-#ifndef OCR_H
-#define OCR_H
+#ifndef OCRLIB_UNITY_H
+#define OCRLIB_UNITY_H
 
 #include <vector>
 #include <opencv2/core.hpp>
@@ -14,7 +14,8 @@ int argmax(Mat m);
 int ocr();
 void readMat(string filename, Mat& img);
 
-#endif // !OCR_H
+#endif // !OCRLIB_UNITY_H
 
 
 
+#pragma once
