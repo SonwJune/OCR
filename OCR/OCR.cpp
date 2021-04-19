@@ -5,8 +5,8 @@
 #include <sstream>
 #include <fstream>
 #include <vector>
-#include "OCR.h"
 #include <random>
+//#include "OCR.h"
 
 using namespace cv;
 using namespace std;
@@ -25,10 +25,13 @@ Mat sigmoidPrime(Mat z);
 double evaluate(vector<Mat> testImgMat, vector<Mat> testImgLbl, vector<Mat> weights, vector<Mat> biases);
 int argmax(Mat m);
 Mat feedforward(vector<Mat> biases, vector<Mat> weights, Mat img);
+void writeMat(string filename, Mat img);
+void readMat(string filename, Mat& img);
 
-
-int main(int argc, char** argv)
+//根据训练集生成weights, biases, rate
+int ocr()
 {
+
     vector<Mat> weights = initWeights();
     vector<Mat> biases = initBiases();
     vector<Mat> imgMat = GetTrainImg("d:/deeplearning/train-images.idx3-ubyte");
@@ -73,6 +76,16 @@ int main(int argc, char** argv)
     double rate = evaluate(testImgMat, testImgLbl, weights, biases);
     cout << "rate:    " << rate*100 << "%"<<endl;
     //GetTrainLbl("d:/deeplearning/train-labels.idx1-ubyte");
+    // 
+    // 
+    // 
+    //存储w  b
+    writeMat("b0", biases[0]);
+    writeMat("b1", biases[1]);
+    writeMat("w0", weights[0]);
+    writeMat("w1", weights[1]);
+
+    return 0;
 }
 
 double evaluate(vector<Mat> testImgMat, vector<Mat> testImgLbl, vector<Mat> weights, vector<Mat> biases)
@@ -270,4 +283,45 @@ vector<Mat> GetTrainLbl(string filename)
     }
     inTrainImage.close();
     return imgLbl;
+}
+
+//将CV_32FC1的Mat以二进制方式写入文件
+void writeMat(string filename,Mat img)
+{
+    ofstream ofs(filename, ios::binary | ios::out);
+    if (!ofs)
+    {
+        cerr << "读写文件错误" << endl;
+    }
+    MatIterator_<float> it, end;
+    for (it = img.begin<float>(), end = img.end<float>(); it != end; ++it)
+    {
+        float fPixel = *it;
+        ofs.write(reinterpret_cast<char*>(&fPixel), sizeof fPixel);
+    }
+    ofs.close();
+}
+
+//以二进制方式读入文件并转化为CV_32FC1的Mat
+void readMat(string filename, Mat& img)
+{
+    ifstream ifs(filename, ios::binary | ios::in);
+    vector<float> fvec;
+    
+    while (!ifs.eof())
+    {
+        float b;
+        ifs.read(reinterpret_cast<char*>(&b), sizeof(b));
+        fvec.push_back(b);
+    }
+    ifs.close();
+    //ifs.eof多运行一次;
+    fvec.pop_back();
+    int i = 0;
+    MatIterator_<float> it, end;
+    for (it = img.begin<float>(), end = img.end<float>(); it != end; ++it)
+    {
+        *it = fvec[i];
+        ++i;
+    }
 }

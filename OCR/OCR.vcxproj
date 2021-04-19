@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="OCR.cpp" />
+    <ClCompile Include="predict.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OCR.h" />
