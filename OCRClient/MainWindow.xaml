@@ -8,7 +8,7 @@
         Title="MainWindow" Height="450" Width="800">
     <Border BorderThickness="1" BorderBrush="Black" Background='#FFFFFFFF' x:Name='DocumentRoot' Width='750' Height='400' CornerRadius='10'>
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Background="AliceBlue" Margin="20,0,0,0">
-            <InkCanvas Opacity="1" Background="White"  x:Name="inkSig" Width="280" Height="280" EditingMode="Ink" Margin="0,20,0,0" />
+            <InkCanvas Opacity="1" Background="Black"  x:Name="inkSig" Width="280" Height="280" EditingMode="Ink" Margin="0,20,0,0" />
 
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <Button FontSize="24" Margin="10" Width="150" x:Name="btnSave" Click="btnSave_Click" Content="Save"/>

@@ -33,6 +33,7 @@ namespace OCRClient
             InitializeComponent();
             inkSig.DefaultDrawingAttributes.Height = 15;
             inkSig.DefaultDrawingAttributes.Width = 15;
+            inkSig.DefaultDrawingAttributes.Color = Color.FromRgb(255, 255, 255);
         }
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
